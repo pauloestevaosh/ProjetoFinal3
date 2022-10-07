@@ -1,53 +1,37 @@
-use Resilia;
+// MongoDB Playground
+// To disable this template go to Settings | MongoDB | Use Default Template For Playground.
+// Make sure you are connected to enable completions and to be able to run a playground.
+// Use Ctrl+Space inside a snippet or a string literal to trigger completions.
 
-insert into
+// Select the database to use.
+use('mongodbVSCodePlaygroundDB');
 
-Alunos (cpf, nome, telefone, endereco, cidade, estado, email, especialidade)
-values
-( '02122852895', 'Paulo Estêvão de Andrade', '85999665233', 'Avenida Hermógenes de Assis Feijó, 888', 'Fortaleza ' , 'Ceará'),
-( '69250333030', 'Helena Luiza Andrea Teixeira', '41995227808', 'Avenida Carneiro de Mendonça, 251'),
-( '74744868061', 'Calebe Benjamin Souza', '87999235222', 'Rua A , 12'),
-( '35324614041', 'Murilo Benedito Ian Porto', '84982225237', 'Avenida Princesa Isabel, 270'),
-( '03246789088', 'Victor Eduardo Caleb Melo', '11999665455', 'Rua Thereza Viventin Salvador, 502'),
-( '05927144039', 'Luís Thales Baptista', '11992541789', 'Avenida Blumenau, 174'),
-( '92243482037', 'João Pereira da Silva', '4792458749', 'Travessa Quartorze, 889'),
-( '93282780079', 'Joana Cláudia da Mota', '84999665211', 'Rua Ita, 1200'),
-( '90329219081', 'Matheus Manoel Bernardo Novaes', '88999665212', 'Travessa Estrela Dalva, 824'),
-( '67711242077', 'Daniel Renan Peixoto', '85922665217', 'Rua Coronel Pacífico, 1789')
-;
+// The drop() command destroys all data from a collection.
+// Make sure you run it against the correct database and collection.
+db.sales.drop();
 
--- 15 produtos, 10 clientes, e 30 avaliações.
+// Insert a few documents into the sales collection.
+db.sales.insertMany([
+  { '_id': 1, 'item': 'abc', 'price': 10, 'quantity': 2, 'date': new Date('2014-03-01T08:00:00Z') },
+  { '_id': 2, 'item': 'jkl', 'price': 20, 'quantity': 1, 'date': new Date('2014-03-01T09:00:00Z') },
+  { '_id': 3, 'item': 'xyz', 'price': 5, 'quantity': 10, 'date': new Date('2014-03-15T09:00:00Z') },
+  { '_id': 4, 'item': 'xyz', 'price': 5, 'quantity':  20, 'date': new Date('2014-04-04T11:21:39.736Z') },
+  { '_id': 5, 'item': 'abc', 'price': 10, 'quantity': 10, 'date': new Date('2014-04-04T21:23:13.331Z') },
+  { '_id': 6, 'item': 'def', 'price': 7.5, 'quantity': 5, 'date': new Date('2015-06-04T05:08:13Z') },
+  { '_id': 7, 'item': 'def', 'price': 7.5, 'quantity': 10, 'date': new Date('2015-09-10T08:43:00Z') },
+  { '_id': 8, 'item': 'abc', 'price': 10, 'quantity': 5, 'date': new Date('2016-02-06T20:20:13Z') },
+]);
 
-insert into
-Avaliacoes	(nota, `data`,id_cliente,id_produto)
- value
-(5,'2021-09-11',2,1),
-('8','2022-01-21',1,2),
-('9','2021-03-12',8,2),
-('6','2022-05-15',6,2),
-('7','2021-06-01',5,6),
-('3','2021-12-09',2,6),
-('4','2022-07-18',7,6),
-('4','2022-03-17',6,6),
-('8','2021-05-16',9,1),
-('10','2022-09-15',10,2),
-('1','2022-09-16',10,1),
-('1','2022-05-19',6,1),
-('7','2021-01-03',3,1),
-('10','2022-02-05',3,1),
-('7','2022-05-05',2,1),
-('8','2021-08-09',10,1),
-('6','2020-09-07',9,2),
-('4','2021-09-04',8,3),
-('7','2021-04-06',7,4),
-('5','2020-01-03',6,5),
-('10','2022-01-09',5,6),
-('1','2021-03-01',4,7),
-('3','2022-04-10',3,9),
-('3','2020-03-10',2,10),
-('7','2021-02-18',1,11),
-('8','2022-05-07',1,12),
-('9','2022-06-08',1,13),
-('1','2021-07-02',2,14),
-('5','2022-08-30',7,15),
-('10','2021-01-25',7,1);
+// Run a find command to view items sold on April 4th, 2014.
+db.sales.find({ date: { $gte: new Date('2014-04-04'), $lt: new Date('2014-04-05') } });
+
+// Build an aggregation to view total sales for each product in 2014.
+const aggregation = [
+  { $match: { date: { $gte: new Date('2014-01-01'), $lt: new Date('2015-01-01') } } },
+  { $group: { _id: '$item', totalSaleAmount: { $sum: { $multiply: [ '$price', '$quantity' ] } } } }
+];
+
+// Run the aggregation and open a cursor to the results.
+// Use toArray() to exhaust the cursor to return the whole result set.
+// You can use hasNext()/next() to iterate through the cursor page by page.
+db.sales.aggregate(aggregation);
